@@ -78,16 +78,9 @@ const flightsMeanCost = () => {
 
 const askRole = () => {
   let role = prompt("Are you an user or administrator? (admin/user)");
-  if (
-    !role ||
-    (role.toLowerCase() !== "admin" && role.toLowerCase() !== "user")
-  ) {
-    askRole();
-  } else if (role.toLowerCase() === "admin") {
-    return adminActions();
-  } else if (role.toLowerCase() === "user") {
-    return userAction();
-  }
+  if (role && (role.toLowerCase() === "admin" || role.toLowerCase() === "user"))
+    return role;
+  return askRole();
 };
 
 const userAction = () => {
@@ -102,7 +95,7 @@ const userAction = () => {
         console.log(
           `The flight with origin: ${flight.from}, and destination: ${
             flight.to
-          } has a cost of ${flight.cost} and ${
+          } has a cost of ${flight.cost}€ and ${
             flight.scale ? "make stopover" : "does not make any stopover."
           }`
         );
@@ -132,7 +125,8 @@ const lastUserCuestion = () => {
     alert("Please, only chose: yes or no.");
     lastUserCuestion();
   } else if (cuestion.toLowerCase() === "yes") {
-    return userAction();
+    userAction();
+    lastUserCuestion();
   }
 };
 
@@ -143,7 +137,12 @@ const init = () => {
   console.log("*************************");
   let mean = flightsMeanCost();
   console.log(`****** The average cost of our flights is: ${mean} € ******`);
-  askRole();
+  const role = askRole();
+  if (role === "user") {
+    userAction();
+  } else {
+    adminActions();
+  }
   lastUserCuestion();
   console.log("*************************");
   const showScale = confirm("Do you want to see flights with stopovers?");
