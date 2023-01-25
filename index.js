@@ -43,6 +43,9 @@ const flights = [
   { id: 09, to: "Tel-Aviv", from: "Madrid", cost: 150, scale: false },
 ];
 let currentIds = flights.sort((a, b) => b.id - a.id)[0].id + 1;
+const sortedByCost = (flights) => {
+  return flights.sort((a, b) => a.cost - b.cost);
+};
 
 const askNameAndGreet = () => {
   let name = null;
@@ -50,7 +53,6 @@ const askNameAndGreet = () => {
     name = prompt("Hi, what's your name?");
     name ?? alert("Please, insert name"); // expresión truthy que ejecuta la segunda parte del ?? solo si la primera no se cumple. (Es como un ternario pero sin el else)
   }
-  console.log(`Hi ${name} !`);
   return name;
 };
 
@@ -86,22 +88,26 @@ const askRole = () => {
 
 const userAction = () => {
   const maxCost = +prompt("Search flights by entering a maximum cost");
+  const flightsByMaximumCost = [];
+  const cheapestFlight = sortedByCost(flights)[0].cost;
   if (!maxCost || isNaN(maxCost)) {
     alert(" Please, insert only a number!");
     userAction();
-  } else {
-    console.log(`The flights with a maximum cost of ${maxCost} are: `);
+  } else if (maxCost > cheapestFlight) {
     flights.forEach((flight) => {
       if (flight.cost <= maxCost) {
-        console.log(
-          `The flight with origin: ${flight.from}, and destination: ${
+        flightsByMaximumCost.push(
+          `*The flight with origin: ${flight.from}, and destination: ${
             flight.to
           } has a cost of ${flight.cost}€ and ${
             flight.scale ? "make stopover" : "does not make any stopover."
-          }`
+          }\n`
         );
       }
     });
+    alert(flightsByMaximumCost.join(""));
+  } else {
+    alert("There are no flights for that price!");
   }
 };
 
@@ -121,9 +127,15 @@ const deleteFlightById = (id) => {
     alert("That id does not exist!");
   }
 };
+const displayDeletedFlight = (deletedFlight) => {
+  return deletedFlight.reduce((accumulator, current) => {
+    accumulator += `The flight from: ${current.from}, and destination: ${current.to}, with the cost of: ${current.cost}`;
+    return accumulator;
+  }, "");
+};
 
 const adminActions = () => {
-  const action = getPromptData("Remove o add ?", (data) => {
+  const action = getPromptData("Remove o add flights ?", (data) => {
     return data.toLowerCase() === "remove" || data.toLowerCase() === "add";
   });
   if (action === "remove") {
@@ -133,8 +145,7 @@ const adminActions = () => {
       (id) => !!id && !isNaN(id)
     );
     const deletedFlight = deleteFlightById(id);
-    console.log("Deleted flight:", JSON.stringify(deletedFlight));
-    console.log(showFlights());
+    alert(`Deleted flight:\n ${displayDeletedFlight(deletedFlight)}`);
   } else if (action === "add") {
     if (flights.length < 15) {
       const from = getPromptData(
@@ -184,12 +195,10 @@ const lastUserCuestion = () => {
 };
 
 const init = () => {
-  let name = askNameAndGreet();
-  console.log("****** Our flights ****** : ");
-  console.log(showFlights());
-  console.log("*************************");
+  let userName = askNameAndGreet();
+  alert(`Hi ${userName}, these are our flights:\n ${showFlights()} `);
   let mean = flightsMeanCost();
-  console.log(`****** The average cost of our flights is: ${mean} € ******`);
+  alert(`****** The average cost of our flights is: ${mean} € ******`);
   const role = askRole();
   if (role === "user") {
     userAction();
@@ -200,17 +209,16 @@ const init = () => {
       exit = confirm("Do you want to exit from admin actions ? ");
     }
   }
-  console.log(showFlights());
   lastUserCuestion();
-  console.log("*************************");
   const showScale = confirm("Do you want to see flights with stopovers?");
-  showScale && console.log(showFlights((flight) => flight.scale));
-  console.log("****** Last five flights of the day: ******");
-  console.log(
-    showFlights((_, index, flightsArray) => {
-      let indexLimited = flightsArray.length - 5;
-      return index >= indexLimited;
-    })
+  showScale && alert(showFlights((flight) => flight.scale));
+  alert(
+    `****** Last five flights of the day: ******\n ${showFlights(
+      (_, index, flightsArray) => {
+        let indexLimited = flightsArray.length - 5;
+        return index >= indexLimited;
+      }
+    )}`
   );
 };
 init();
