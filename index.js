@@ -43,9 +43,6 @@ const flights = [
   { id: 09, to: "Tel-Aviv", from: "Madrid", cost: 150, scale: false },
 ];
 let currentIds = flights.sort((a, b) => b.id - a.id)[0].id + 1;
-const sortedByCost = (flights) => {
-  return flights.sort((a, b) => a.cost - b.cost);
-};
 
 const askNameAndGreet = () => {
   let name = null;
@@ -56,17 +53,19 @@ const askNameAndGreet = () => {
   return name;
 };
 
+const showFlight = (flight, showId) => {
+  return `${showId ? "Id: " + flight.id + ". " : "* "}The flight with origin: ${
+    flight.from
+  }, and destination: ${flight.to} has a cost of ${flight.cost}€ and ${
+    flight.scale ? "make stopover" : "does not make any stopover"
+  } `;
+};
+
 const showFlights = (filterCb, showId) => {
   let flightsFiltered = [...flights].sort((a, b) => a.id - b.id); // Ordenar los flights por id
   if (!!filterCb) flightsFiltered = flightsFiltered.filter(filterCb);
   return flightsFiltered.reduce((accumulator, current) => {
-    accumulator += `${
-      showId ? "Id: " + current.id + " ." : ""
-    }The flight with origin: ${current.from}, and destination: ${
-      current.to
-    } has a cost of ${current.cost}€ and ${
-      current.scale ? "make stopover" : "does not make any stopover"
-    } \n`;
+    accumulator += `${showFlight(current, showId)} \n`;
     return accumulator;
   }, "");
 };
@@ -88,27 +87,18 @@ const askRole = () => {
 
 const userAction = () => {
   const maxCost = +prompt("Search flights by entering a maximum cost");
-  const flightsByMaximumCost = [];
-  const cheapestFlight = sortedByCost(flights)[0].cost;
+
   if (!maxCost || isNaN(maxCost)) {
     alert(" Please, insert only a number!");
     userAction();
-  } else if (maxCost > cheapestFlight) {
-    flights.forEach((flight) => {
-      if (flight.cost <= maxCost) {
-        flightsByMaximumCost.push(
-          `*The flight with origin: ${flight.from}, and destination: ${
-            flight.to
-          } has a cost of ${flight.cost}€ and ${
-            flight.scale ? "make stopover" : "does not make any stopover."
-          }\n`
-        );
-      }
-    });
-    alert(flightsByMaximumCost.join(""));
-  } else {
-    alert("There are no flights for that price!");
   }
+  const filteredFlightsByCost = showFlights(
+    (flight) => flight.cost <= maxCost,
+    true
+  );
+
+  if (!filteredFlightsByCost) alert("There are no flights for that price!");
+  else alert(filteredFlightsByCost);
 };
 
 const getPromptData = (msg, checkData) => {
@@ -122,16 +112,7 @@ const deleteFlightById = (id) => {
   const flightIndex = flights.findIndex((flight) => {
     return parseInt(flight.id) === parseInt(id);
   });
-  if (flightIndex !== -1) return flights.splice(flightIndex, 1);
-  else {
-    alert("That id does not exist!");
-  }
-};
-const displayDeletedFlight = (deletedFlight) => {
-  return deletedFlight.reduce((accumulator, current) => {
-    accumulator += `The flight from: ${current.from}, and destination: ${current.to}, with the cost of: ${current.cost}`;
-    return accumulator;
-  }, "");
+  if (flightIndex !== -1) return flights.splice(flightIndex, 1)[0];
 };
 
 const adminActions = () => {
@@ -145,7 +126,10 @@ const adminActions = () => {
       (id) => !!id && !isNaN(id)
     );
     const deletedFlight = deleteFlightById(id);
-    alert(`Deleted flight:\n ${displayDeletedFlight(deletedFlight)}`);
+
+    !!deletedFlight
+      ? alert(`Deleted flight:\n ${showFlight(deletedFlight)}`)
+      : alert("That id does not exist!");
   } else if (action === "add") {
     if (flights.length < 15) {
       const from = getPromptData(
