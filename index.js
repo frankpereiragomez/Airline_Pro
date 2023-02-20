@@ -84,8 +84,10 @@ const deleteFlightById = (id) => {
 };
 
 const adminActions = () => {
-  const action = getPromptData("Remove o add flights ?", (data) => {
-    return data.toLowerCase() === "remove" || data.toLowerCase() === "add";
+  const action = getPromptData("Remove or add flights ?", (data) => {
+    while (data !== null) {
+      return data.toLowerCase() === "remove" || data.toLowerCase() === "add";
+    }
   });
   if (action === "remove") {
     const id = getPromptData(
@@ -126,6 +128,7 @@ const adminActions = () => {
       };
       flights.push(newFlight);
       currentIds++;
+      alert(`New flight added:\n ${showFlight(newFlight)}`);
     } else {
       alert("You have reached 15 flights !!");
     }
@@ -146,7 +149,7 @@ const lastUserCuestion = () => {
   }
 };
 
-const init = () => {
+const startAirline = () => {
   let userName = askNameAndGreet();
   alert(`Hi ${userName}, these are our flights:\n ${showFlights()} `);
   let mean = flightsMeanCost();
@@ -173,4 +176,4 @@ const init = () => {
     )}`
   );
 };
-init();
+startAirline();
