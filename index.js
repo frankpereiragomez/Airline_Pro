@@ -16,7 +16,7 @@ const askNameAndGreet = () => {
   let name = null;
   while (!name) {
     name = prompt("Hi, what's your name?");
-    name ?? alert("Please, insert name"); // expresión truthy que ejecuta la segunda parte del ?? solo si la primera no se cumple. (Es como un ternario pero sin el else)
+    name ?? alert("Please, insert name");
   }
   return name;
 };
@@ -30,7 +30,7 @@ const showFlight = (flight, showId) => {
 };
 
 const showFlights = (filterCb, showId) => {
-  let flightsFiltered = [...flights].sort((a, b) => a.id - b.id); // Ordenar los flights por id
+  let flightsFiltered = [...flights].sort((a, b) => a.id - b.id);
   if (!!filterCb) flightsFiltered = flightsFiltered.filter(filterCb);
   return flightsFiltered.reduce((accumulator, current) => {
     accumulator += `${showFlight(current, showId)} \n`;
