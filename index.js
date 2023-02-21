@@ -89,7 +89,7 @@ const adminActions = () => {
       return data.toLowerCase() === "remove" || data.toLowerCase() === "add";
     }
   });
-  if (action === "remove") {
+  if (action.toLowerCase() === "remove") {
     const id = getPromptData(
       `Indica el id a eliminar \n
       ${showFlights(null, true)}`,
@@ -100,7 +100,7 @@ const adminActions = () => {
     !!deletedFlight
       ? alert(`Deleted flight:\n ${showFlight(deletedFlight)}`)
       : alert("That id does not exist!");
-  } else if (action === "add") {
+  } else if (action.toLowerCase() === "add") {
     if (flights.length < 15) {
       const from = getPromptData(
         "Indicate the origin of the new flight",
